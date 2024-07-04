@@ -153,45 +153,114 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(mapStateToProps)(List);
 
 
-// const editListTitle = async () => {
-//   const { listId, dispatch } = props;
-//   const { title } = state;
+// import "../styles/List.css";
+// import React, { useEffect, useState } from "react";
+// import { Droppable, Draggable } from "react-beautiful-dnd";
+// import axios from "axios";
+// import Card from "./Card";
+// import CardEditor from "./CardEditor";
+// import ListEditor from "./ListEditor";
+// import shortid from "shortid";
 
-//   try {
-//     const response = await axios.put(
-//       `http://localhost:5000/api/board/lists/${listId}`,
-//       { title }, // Updated title
-//       {
-//         headers: {
-//           'Content-Type': 'application/json'
-//         }
+// function List(props) {
+//   const { listId, index } = props;
+//   const [list, setList] = useState(null);
+//   const [state, setState] = useState({
+//     editingTitle: false,
+//     title: "",
+//     addingCard: false,
+//   });
+//   const { editingTitle, addingCard, title } = state;
+
+//   useEffect(() => {
+//     const fetchList = async () => {
+//       try {
+//         const response = await axios.get(`http://localhost:5000/api/board/lists`);
+//         const list = response.data.find(list => list._id === listId);
+//         setList(list);
+//         setState({ ...state, title: list.title });
+//       } catch (error) {
+//         console.error("Error fetching list:", error);
 //       }
-//     );
+//     };
+//     fetchList();
+//   }, [listId]);
 
-//     // Assuming the response.data contains the updated list data
-//     dispatch({
-//       type: "CHANGE_LIST_TITLE",
-//       payload: { listId, listTitle: response.data.title }
-//     });
+//   const toggleAddingCard = () => setState({ ...state, addingCard: !state.addingCard });
 
-//     toggleEditingTitle(); // Close the editing mode
-//   } catch (error) {
-//     console.error('Error editing list title:', error);
-//   }
-// };
-
-
-// const deleteList = async () => {
-//   if (window.confirm("Are you sure to delete this list?")) {
+//   const addCard = async (cardText) => {
+//     toggleAddingCard();
+//     const cardId = shortid.generate();
+//     const data = { cardText, cardId, listId };
 //     try {
-//       await axios.delete(`http://localhost:5000/api/board/lists/${listId}`);
-
-//       dispatch({
-//         type: "DELETE_LIST",
-//         payload: { listId, cards: list.cards }
+//       const response = await axios.post('http://localhost:5000/api/board/add', data, {
+//         headers: { 'Content-Type': 'application/json' }
 //       });
+//       setList(prevList => ({ ...prevList, cards: [...prevList.cards, cardId] }));
 //     } catch (error) {
-//       console.error('Error deleting list:', error);
+//       console.log(error);
 //     }
-//   }
-// };
+//   };
+
+//   const toggleEditingTitle = () => setState({ ...state, editingTitle: !state.editingTitle });
+
+//   const handleChangeTitle = e => setState({ ...state, title: e.target.value });
+
+//   const editListTitle = async () => {
+//     // Implement edit list title functionality
+//   };
+
+//   const deleteList = async () => {
+//     // Implement delete list functionality
+//   };
+
+//   return list ? (
+//     <Draggable draggableId={list._id} index={index}>
+//       {(provided, snapshot) => (
+//         <div
+//           ref={provided.innerRef}
+//           {...provided.draggableProps}
+//           {...provided.dragHandleProps}
+//           className="List"
+//         >
+//           {editingTitle ? (
+//             <ListEditor
+//               list={list}
+//               title={title}
+//               handleChangeTitle={handleChangeTitle}
+//               saveList={editListTitle}
+//               onClickOutside={editListTitle}
+//               deleteList={deleteList}
+//             />
+//           ) : (
+//             <div className="List-Title" onClick={toggleEditingTitle}>
+//               {list.title}
+//             </div>
+//           )}
+
+//           <Droppable droppableId={list._id}>
+//             {(provided, _snapshot) => (
+//               <div ref={provided.innerRef} className="Lists-Cards">
+//                 {list.cards && list.cards.map((cardId, index) => (
+//                   <Card key={cardId} cardId={cardId} index={index} listId={list._id} />
+//                 ))}
+
+//                 {provided.placeholder}
+
+//                 {addingCard ? (
+//                   <CardEditor onSave={addCard} onCancel={toggleAddingCard} adding />
+//                 ) : (
+//                   <div className="Toggle-Add-Card" onClick={toggleAddingCard}>
+//                     Add a card
+//                   </div>
+//                 )}
+//               </div>
+//             )}
+//           </Droppable>
+//         </div>
+//       )}
+//     </Draggable>
+//   ) : null;
+// }
+
+// export default List;
