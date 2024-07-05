@@ -91,47 +91,46 @@ export default connect(mapStateToProps)(Board);
 
 
 
-
+// // Board.js
 // import "../styles/Board.css";
-// import React, { useState } from "react";
-// import { connect } from "react-redux";
-// import { DragDropContext, Droppable } from "react-beautiful-dnd";
+
+// import React, { useEffect, useState } from "react";
 // import axios from "axios";
+// import { DragDropContext, Droppable } from "react-beautiful-dnd";
 
 // import List from "./List";
 // import AddList from "./AddList";
 
-// function Board(props) {
-//   const [state, setState] = useState({ addingList: false });
+// function Board() {
+//   const [board, setBoard] = useState([]);
+//   const [addingList, setAddingList] = useState(false);
+
+//   useEffect(() => {
+//     const fetchBoard = async () => {
+//       const response = await axios.get("http://localhost:5000/board");
+//       setBoard(response.data);
+//     };
+//     fetchBoard();
+//   }, []);
 
 //   const toggleAddingList = () => {
-//     setState({ addingList: !state.addingList });
+//     setAddingList(!addingList);
 //   };
 
 //   const handleDragEnd = async ({ source, destination, type }) => {
 //     if (!destination) return;
 
-//     const { dispatch } = props;
-
 //     // Move list
 //     if (type === "COLUMN") {
 //       if (source.index !== destination.index) {
-//         dispatch({
-//           type: "MOVE_LIST",
-//           payload: {
-//             oldListIndex: source.index,
-//             newListIndex: destination.index
-//           }
+//         await axios.post("http://localhost:5000/move-list", {
+//           oldListIndex: source.index,
+//           newListIndex: destination.index
 //         });
-
-//         try {
-//           await axios.put('/api/lists/move', {
-//             oldListIndex: source.index,
-//             newListIndex: destination.index
-//           });
-//         } catch (error) {
-//           console.error('Failed to move list:', error);
-//         }
+//         const updatedBoard = [...board];
+//         const listToMove = updatedBoard.splice(source.index, 1)[0];
+//         updatedBoard.splice(destination.index, 0, listToMove);
+//         setBoard(updatedBoard);
 //       }
 //       return;
 //     }
@@ -141,39 +140,32 @@ export default connect(mapStateToProps)(Board);
 //       source.index !== destination.index ||
 //       source.droppableId !== destination.droppableId
 //     ) {
-//       dispatch({
-//         type: "MOVE_CARD",
-//         payload: {
-//           sourceListId: source.droppableId,
-//           destListId: destination.droppableId,
-//           oldCardIndex: source.index,
-//           newCardIndex: destination.index
-//         }
+//       await axios.post("http://localhost:5000/move-card", {
+//         sourceListId: source.droppableId,
+//         destListId: destination.droppableId,
+//         oldCardIndex: source.index,
+//         newCardIndex: destination.index
 //       });
-
-//       try {
-//         await axios.put('/api/cards/move', {
-//           sourceListId: source.droppableId,
-//           destListId: destination.droppableId,
-//           oldCardIndex: source.index,
-//           newCardIndex: destination.index
-//         });
-//       } catch (error) {
-//         console.error('Failed to move card:', error);
-//       }
+//       const updatedBoard = [...board];
+//       const sourceListIndex = updatedBoard.findIndex(
+//         list => list._id === source.droppableId
+//       );
+//       const destListIndex = updatedBoard.findIndex(
+//         list => list._id === destination.droppableId
+//       );
+//       const cardToMove = updatedBoard[sourceListIndex].cards.splice(source.index, 1)[0];
+//       updatedBoard[destListIndex].cards.splice(destination.index, 0, cardToMove);
+//       setBoard(updatedBoard);
 //     }
 //   };
-
-//   const { board } = props;
-//   const { addingList } = state;
 
 //   return (
 //     <DragDropContext onDragEnd={handleDragEnd}>
 //       <Droppable droppableId="board" direction="horizontal" type="COLUMN">
-//         {(provided) => (
+//         {(provided, _snapshot) => (
 //           <div className="Board" ref={provided.innerRef}>
-//             {board?.lists.map((listId, index) => (
-//               <List listId={listId} key={listId} index={index} />
+//             {board.map((list, index) => (
+//               <List list={list} key={list._id} index={index} />
 //             ))}
 //             {provided.placeholder}
 //             <div className="Add-List">
@@ -192,7 +184,4 @@ export default connect(mapStateToProps)(Board);
 //   );
 // }
 
-// const mapStateToProps = (state) => ({ board: state.board });
-
-// export default connect(mapStateToProps)(Board);
-
+// export default Board;
